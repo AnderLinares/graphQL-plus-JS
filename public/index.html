@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+    <html>
+     
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>Page Title</title>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+    </head>
+     
+    <body>
+        <div>
+            <h2>Consulta saludo</h2>
+            <button onclick="obtenerSaludo()">Obtener Saludo</button>
+            <textarea style="width: 332px; height: 86px;" id="respuesta1"></textarea>
+        </div>
+
+        <div>
+            <h2>Consulta coche</h2>
+    
+            <input id="cocheConsulta" />
+    
+            <button onclick="consultarCoche()">Consultar coche</button>
+    
+            <textarea style="width: 332px; height: 86px;" id="respuesta2"></textarea>
+            
+        </div>
+
+        <div>
+            <h2>Guardar coche</h2>
+            <input id="guardarCoche" />
+            <button onclick="guardarCoche()">guardar nuevo Coche</button>
+            <textarea style="width: 332px; height: 86px;" id="respuesta3"></textarea>
+        </div>
+      
+        <script>
+            const httpClient = (query) => {
+                return fetch('/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(query)
+                }).then(r => r.json())
+     
+            }
+            const obtenerSaludo = () => {
+                const query = {
+                    query: `query{
+                            saludo
+                        }`
+                };
+                httpClient(query).then(data => {
+                    console.log('data returned:', data);
+                    document.body.querySelector('#respuesta1').value = JSON.stringify(data, null, 2)
+                });
+            };
+        
+            const consultarCoche = () => {
+            const valorId = document.querySelector('#cocheConsulta').value;
+            const query = {
+                query: `query{
+                            consultaCoche(id: ${valorId}) {
+                            id,
+                            tipo
+                            }
+                        }`}
+                httpClient(query).then(data => {
+                    document.body.querySelector('#respuesta2').value = JSON.stringify(data, null, 2)
+                })
+            };
+
+            const guardarCoche = () => {
+                const valorTipo = document.querySelector('#guardarCoche').value;
+                const query = {
+                    query: `mutation ($tipo: String){
+                        nuevoModelo(modelo:{tipo:$tipo}) {
+                        tipo
+                        }
+                        }`,
+                    variables: {
+                        tipo: valorTipo
+                    }
+                }
+                httpClient(query).then(data => {
+                    document.body.querySelector('#respuesta3').value = JSON.stringify(data, null, 2)
+                })
+            }
+        
+        </script>
+    </body>
+     
+    </html>
